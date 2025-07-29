@@ -5,11 +5,11 @@ require('dotenv').config(); // To load environment variables from a .env file
 
 const app = express();
 
-// Note: Ensure your .env file has ALPHA_VANTAGE_API_KEY=YOURKEY without quotes
+
 const ALPHA_VANTAGE_API_KEY = process.env.ALPHA_VANTAGE_API_KEY;
 const ALPHA_VANTAGE_HOSTNAME = 'www.alphavantage.co';
 
-// Check if the API key is set in the environment
+
 if (!ALPHA_VANTAGE_API_KEY) {
     console.error('Error: ALPHA_VANTAGE_API_KEY is not set. Please create a .env file with its value.');
     process.exit(1); // Exit the process with an error code
@@ -35,20 +35,18 @@ app.get('/api/alpha-vantage', async (req, res) => {
             return res.status(400).json({ error: `Invalid proxy request. Hostname not allowed. Only requests to ${ALPHA_VANTAGE_HOSTNAME} are permitted.` });
         }
 
-        // Securely add the API key to the request parameters
         urlObject.searchParams.set('apikey', ALPHA_VANTAGE_API_KEY);
 
-        // Make the GET request to the final Alpha Vantage URL
+    
         const response = await axios.get(urlObject.toString());
 
-        // Alpha Vantage can return errors in the JSON response with a 200 status
         if (response.data['Error Message']) {
             return res.status(400).json({ error: response.data['Error Message'] });
         }
-        // Send the data from Alpha Vantage back to the original client
+        
         res.json(response.data);
     } catch (error) {
-        // Handle malformed URLs from the client
+       
         if (error instanceof TypeError && error.code === 'ERR_INVALID_URL') {
             return res.status(400).json({ error: 'Invalid URL format provided.' });
         }
